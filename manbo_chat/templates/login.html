@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ManBo聊天室 - 登录</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body class="login-bg">
+  <div class="card login-card">
+    <h1 class="title">ManBo聊天室</h1>
+    <p class="subtitle">登录后开始聊天体验</p>
+
+    <form id="loginForm" class="form">
+      <div class="form-item">
+        <label>昵称</label>
+        <div class="input-icon">
+          <span class="icon">👤</span>
+          <input id="nickname" type="text" placeholder="请输入您的昵称" maxlength="18" required />
+        </div>
+      </div>
+
+      <div class="form-item">
+        <label>密码</label>
+        <div class="input-icon">
+          <span class="icon">🔒</span>
+          <input id="password" type="password" placeholder="请输入密码" required />
+        </div>
+      </div>
+
+      <div class="form-item">
+        <label>服务器</label>
+        <div class="input-icon">
+          <span class="icon">🖧</span>
+          <select id="serverSelect">
+            <option value="">选择服务器</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="loginBtn" type="submit" class="btn primary">登录 ➜</button>
+      <p id="loginTip" class="tip"></p>
+    </form>
+  </div>
+
+  <script src="/static/js/jquery-3.7.1.min.js"></script>
+  <script src="/static/js/login.js"></script>
+</body>
+</html>

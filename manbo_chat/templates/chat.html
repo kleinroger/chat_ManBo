@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ManBo聊天室 - 群聊</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body class="chat-bg">
+  <header class="chat-header">
+    <div class="chat-title">ManBo聊天室</div>
+    <div class="chat-actions">
+      <button id="historyBtn" class="btn">历史记录</button>
+      <button id="logoutBtn" class="btn danger">退出</button>
+    </div>
+  </header>
+
+  <main class="chat-main">
+    <aside class="sidebar" aria-label="在线用户">
+      <div class="contacts-header">
+        <div class="contacts-title">当前在线</div>
+        <div id="onlineCount" class="contacts-count">0</div>
+      </div>
+      <div id="onlineUsersList" class="contacts-list" role="listbox" aria-label="在线用户列表"></div>
+      <div class="sidebar-footer"><small>支持@曼波 @音乐一下 @电影 @天气 @新闻 @小视频等功能，支持emoji表情，支持历史记录查看</small></div>
+    </aside>
+
+    <section id="messageList" class="message-list" aria-live="polite"></section>
+    <section class="chat-input">
+      <div class="toolbar">
+        <button id="emojiToggle" class="btn" aria-haspopup="listbox" aria-expanded="false">😊 表情</button>
+        <button class="btn" data-emoji="😀">😀</button>
+        <button class="btn" data-emoji="😂">😂</button>
+        <button class="btn" data-emoji="👍">👍</button>
+        <span class="tips">支持 @曼波 @音乐一下 @电影 @天气 @新闻 @小视频 等功能（预留）</span>
+      </div>
+      <div id="emojiPanel" class="emoji-panel" role="listbox" aria-label="表情选择面板"></div>
+      <div class="input-row">
+        <input id="msgInput" type="text" placeholder="输入消息，按 Enter 发送" maxlength="500" />
+        
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/jquery-3.7.1.min.js"></script>
+  <script src="/static/js/chat.js"></script>
+</body>
+</html>

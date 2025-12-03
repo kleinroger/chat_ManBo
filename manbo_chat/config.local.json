@@ -1,0 +1,11 @@
+{
+  "ai": {
+    "api_key": "sk-kdvhthauwimhtxwtjomlfopfjxekxfwkdzaknhmumtfmhfsn",
+    "api_url": "https://api.siliconflow.cn/v1/",
+    "model_name": "Qwen/Qwen2.5-7B-Instruct"
+  },
+  "weather": {
+    "api_url": "https://v2.xxapi.cn/api/weather",
+    "api_key": "9908406b3b9532ec"
+  }
+}
