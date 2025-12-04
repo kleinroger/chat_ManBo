@@ -47,7 +47,6 @@
     const server = serverSelect.value.trim();
     if(!nick){ tip.textContent = '请输入昵称'; return false; }
     if(!pass){ tip.textContent = '请输入密码'; return false; }
-    if(pass !== '123456'){ tip.textContent = '密码错误（固定密码：123456）'; return false; }
     if(!server){ tip.textContent = '请选择服务器地址'; return false; }
     tip.textContent = ''; return true;
   }
@@ -55,7 +54,42 @@
   form.addEventListener('submit', function(e){
     e.preventDefault();
     if(!validate()) return;
-    const params = new URLSearchParams({ u: nicknameEl.value.trim(), room: 'manbo', ws: serverSelect.value.trim() });
-    location.href = '/chat?' + params.toString();
+    tip.textContent = '正在登录...';
+    fetch('/api/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username: nicknameEl.value.trim(), password: passwordEl.value })
+    }).then(r=>r.json()).then(resp=>{
+      if(resp && resp.ok){
+        const params = new URLSearchParams({ u: nicknameEl.value.trim(), room: 'manbo', ws: serverSelect.value.trim() });
+        location.href = '/chat?' + params.toString();
+      } else {
+        tip.textContent = '登录失败：用户名或密码错误';
+      }
+    }).catch(()=>{ tip.textContent = '登录失败：网络错误'; });
   });
+
+  const registerBtn = document.getElementById('registerBtn');
+  if(registerBtn){
+    registerBtn.addEventListener('click', function(){
+      const nick = nicknameEl.value.trim();
+      const pass = passwordEl.value;
+      if(!nick || !pass){ tip.textContent = '请输入昵称与密码后再注册'; return; }
+      tip.textContent = '正在注册...';
+      fetch('/api/register',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ username: nick, password: pass })
+      }).then(r=>r.json()).then(resp=>{
+        if(resp && resp.ok){
+          tip.textContent = '注册成功，正在登录...';
+          form.dispatchEvent(new Event('submit'));
+        } else if(resp && resp.msg === 'exists'){
+          tip.textContent = '用户名已存在';
+        } else {
+          tip.textContent = '注册失败';
+        }
+      }).catch(()=>{ tip.textContent = '注册失败：网络错误'; });
+    });
+  }
 })();

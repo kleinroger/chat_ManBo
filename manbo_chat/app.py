@@ -1,5 +1,8 @@
 import os
 import json
+import sqlite3
+import hashlib
+import secrets
 import tornado.ioloop
 import tornado.web
 import tornado.websocket
@@ -219,6 +222,100 @@ class MusicProxyHandler(tornado.web.RequestHandler):
             self.write("proxy error")
 
 
+DB_PATH = os.path.join(os.path.dirname(__file__), "manbo_chat.db")
+
+def ensure_db():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at INTEGER NOT NULL
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
+
+def hash_pw(pw: str) -> str:
+    salt = secrets.token_hex(16)
+    h = hashlib.sha256((salt + pw).encode("utf-8")).hexdigest()
+    return f"{salt}:{h}"
+
+def verify_pw(pw: str, stored: str) -> bool:
+    try:
+        salt, h = stored.split(":", 1)
+    except ValueError:
+        return False
+    return hashlib.sha256((salt + pw).encode("utf-8")).hexdigest() == h
+
+class RegisterApiHandler(tornado.web.RequestHandler):
+    def post(self):
+        try:
+            data = json.loads(self.request.body.decode("utf-8"))
+        except Exception:
+            self.set_status(400)
+            self.write(json.dumps({"ok": False, "msg": "bad request"}))
+            return
+        username = str(data.get("username", "")).strip()
+        password = str(data.get("password", ""))
+        if not username or not password:
+            self.set_status(400)
+            self.write(json.dumps({"ok": False, "msg": "missing fields"}))
+            return
+        ensure_db()
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        try:
+            cur.execute("SELECT 1 FROM users WHERE username=?", (username,))
+            if cur.fetchone():
+                self.set_status(409)
+                self.write(json.dumps({"ok": False, "msg": "exists"}))
+                return
+            ph = hash_pw(password)
+            cur.execute(
+                "INSERT INTO users(username, password_hash, created_at) VALUES(?,?,?)",
+                (username, ph, int(tornado.ioloop.IOLoop.current().time()))
+            )
+            conn.commit()
+            self.write(json.dumps({"ok": True, "username": username}))
+        except Exception:
+            self.set_status(500)
+            self.write(json.dumps({"ok": False, "msg": "server error"}))
+        finally:
+            conn.close()
+
+class LoginApiHandler(tornado.web.RequestHandler):
+    def post(self):
+        try:
+            data = json.loads(self.request.body.decode("utf-8"))
+        except Exception:
+            self.set_status(400)
+            self.write(json.dumps({"ok": False, "msg": "bad request"}))
+            return
+        username = str(data.get("username", "")).strip()
+        password = str(data.get("password", ""))
+        ensure_db()
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        try:
+            cur.execute("SELECT password_hash FROM users WHERE username=?", (username,))
+            row = cur.fetchone()
+            if not row or not verify_pw(password, row[0]):
+                self.set_status(401)
+                self.write(json.dumps({"ok": False, "msg": "invalid"}))
+                return
+            self.write(json.dumps({"ok": True, "username": username}))
+        except Exception:
+            self.set_status(500)
+            self.write(json.dumps({"ok": False, "msg": "server error"}))
+        finally:
+            conn.close()
+
+
 def make_app(port=8888, ws_port=None):
     base_dir = os.path.dirname(__file__)
     return tornado.web.Application(
@@ -227,6 +324,8 @@ def make_app(port=8888, ws_port=None):
             (r"/chat", ChatPageHandler),
             (r"/config", ConfigHandler),
             (r"/music_proxy", MusicProxyHandler),
+            (r"/api/register", RegisterApiHandler),
+            (r"/api/login", LoginApiHandler),
             (r"/ws", WSChatHandler),
         ],
         template_path=os.path.join(base_dir, "templates"),

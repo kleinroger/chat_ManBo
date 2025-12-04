@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.env
+*.log
+*.sqlite
+*.db
+manbo_chat/manbo_chat.db
+node_modules/
+.DS_Store
