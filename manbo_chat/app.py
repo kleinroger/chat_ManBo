@@ -8,12 +8,13 @@ import tornado.httpclient
 # ----- Simple in-memory room management -----
 ROOMS = {}
 
-COMMAND_TAGS = ["@曼波", "@音乐一下", "@电影", "@天气", "@新闻", "@小视频"]
+COMMAND_TAGS = ["@曼波", "@音乐一下", "@电影", "@天气", "@新闻"]
 from plugins import music as plugin_music
 from plugins import weather as plugin_weather
 from plugins import movie as plugin_movie
 from plugins import manbo as plugin_manbo
 from plugins import news as plugin_news
+from plugins import avatar as plugin_avatar
 
 
 def load_app_config():
@@ -124,7 +125,7 @@ class WSChatHandler(tornado.websocket.WebSocketHandler):
         broadcast(self.room, msg)
 
         handled = False
-        for fn in (plugin_music.handle, plugin_weather.handle, plugin_movie.handle, plugin_news.handle, plugin_manbo.handle):
+        for fn in (plugin_music.handle, plugin_weather.handle, plugin_movie.handle, plugin_news.handle, plugin_manbo.handle, plugin_avatar.handle):
             try:
                 if await fn(self, text, broadcast, APP_CONFIG):
                     handled = True

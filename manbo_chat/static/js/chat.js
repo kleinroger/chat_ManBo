@@ -19,6 +19,8 @@
   const onlineCountEl = document.getElementById('onlineCount');
   const emojiToggleBtn = document.getElementById('emojiToggle');
   const emojiPanelEl = document.getElementById('emojiPanel');
+  const funcToggleBtn = document.getElementById('funcToggle');
+  const funcPanelEl = document.getElementById('funcPanel');
 
   // 建立 WebSocket 连接
   const wsUrl = new URL(wsBase);
@@ -54,7 +56,6 @@
       bubbleEl.appendChild(card);
       return true;
     }
-    // movie iframe
     if (m.kind === 'movie' && m.movie && m.movie.iframe){
       const iframe = document.createElement('iframe');
       iframe.src = m.movie.iframe;
@@ -109,6 +110,16 @@
       card.innerHTML = `
         <div class="news-header">热点新闻（${escapeHtml(m.news.source||'')})</div>
         <ul class="news-list">${list}</ul>
+      `;
+      bubbleEl.appendChild(card);
+      return true;
+    }
+    if (m.kind === 'avatar' && m.avatar && m.avatar.url){
+      const url = m.avatar.url;
+      const card = document.createElement('div');
+      card.className = 'avatar-card';
+      card.innerHTML = `
+        <div class="avatar-img"><img src="${escapeHtml(url)}" alt="随机头像" /></div>
       `;
       bubbleEl.appendChild(card);
       return true;
@@ -244,7 +255,6 @@
       });
       renderMessages();
     } else if (data.type === 'movie'){
-      // 后端广播的电影 iframe
       const d = data.data || {};
       allMessages.push({
         from: data.user || '系统',
@@ -252,10 +262,7 @@
         time: Date.now(),
         self: false,
         kind: 'movie',
-        movie: {
-          iframe: d.iframe || '',
-          raw: d.raw || ''
-        }
+        movie: { iframe: d.iframe || '', raw: d.raw || '' }
       });
       renderMessages();
     } else if (data.type === 'weather'){
@@ -316,6 +323,17 @@
         news: { source: d.source || '', items }
       });
       renderMessages();
+    } else if (data.type === 'avatar'){
+      const d = data.data || {};
+      allMessages.push({
+        from: data.user || '系统',
+        text: '',
+        time: Date.now(),
+        self: false,
+        kind: 'avatar',
+        avatar: { url: d.url || '' }
+      });
+      renderMessages();
     }
   });
 
@@ -358,6 +376,29 @@
     });
   }
 
+  const funcList = ['@曼波','@音乐一下','@电影','@天气','@新闻','@随机头像'];
+  function renderFuncPanel(){
+    if(!funcPanelEl) return;
+    funcPanelEl.innerHTML = '';
+    funcList.forEach(fn => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn func-btn';
+      btn.setAttribute('data-func', fn);
+      btn.setAttribute('role','option');
+      btn.textContent = fn;
+      btn.addEventListener('click', ()=>{ msgInput.value += fn + ' '; msgInput.focus(); });
+      funcPanelEl.appendChild(btn);
+    });
+  }
+
+  function toggleFuncPanel(){
+    if(!funcPanelEl || !funcToggleBtn) return;
+    const opened = !funcPanelEl.classList.contains('open');
+    funcPanelEl.classList.toggle('open', opened);
+    funcToggleBtn.setAttribute('aria-expanded', opened ? 'true' : 'false');
+  }
+
   function toggleEmojiPanel(){
     if(!emojiPanelEl || !emojiToggleBtn) return;
     const opened = !emojiPanelEl.classList.contains('open');
@@ -368,6 +409,9 @@
   if(emojiToggleBtn){
     emojiToggleBtn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggleEmojiPanel(); });
   }
+  if(funcToggleBtn){
+    funcToggleBtn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); toggleFuncPanel(); });
+  }
 
   // 点击外部区域关闭面板
   document.addEventListener('click', (e)=>{
@@ -376,6 +420,10 @@
     if(emojiPanelEl.classList.contains('open') && !emojiPanelEl.contains(target) && target !== emojiToggleBtn){
       emojiPanelEl.classList.remove('open');
       emojiToggleBtn.setAttribute('aria-expanded','false');
+    }
+    if(funcPanelEl && funcToggleBtn && funcPanelEl.classList.contains('open') && !funcPanelEl.contains(target) && target !== funcToggleBtn){
+      funcPanelEl.classList.remove('open');
+      funcToggleBtn.setAttribute('aria-expanded','false');
     }
   });
   emojiBtns.forEach(btn=> btn.addEventListener('click', ()=>{ msgInput.value += btn.dataset.emoji; msgInput.focus(); }));
@@ -392,5 +440,6 @@
     bindAddContactUI();
     renderMessages();
     renderEmojiPanel();
+    renderFuncPanel();
   });
 })();

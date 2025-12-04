@@ -22,18 +22,20 @@
         <div id="onlineCount" class="contacts-count">0</div>
       </div>
       <div id="onlineUsersList" class="contacts-list" role="listbox" aria-label="在线用户列表"></div>
-      <div class="sidebar-footer"><small>支持@曼波 @音乐一下 @电影 @天气 @新闻 @小视频等功能，支持emoji表情，支持历史记录查看</small></div>
+      <div class="sidebar-footer"><small>支持@曼波 @音乐一下 @电影 @天气 @新闻等功能，支持emoji表情，支持历史记录查看</small></div>
     </aside>
 
     <section id="messageList" class="message-list" aria-live="polite"></section>
     <section class="chat-input">
       <div class="toolbar">
+        <button id="funcToggle" class="btn" aria-haspopup="listbox" aria-expanded="false">@ 功能</button>
         <button id="emojiToggle" class="btn" aria-haspopup="listbox" aria-expanded="false">😊 表情</button>
         <button class="btn" data-emoji="😀">😀</button>
         <button class="btn" data-emoji="😂">😂</button>
         <button class="btn" data-emoji="👍">👍</button>
-        <span class="tips">支持 @曼波 @音乐一下 @电影 @天气 @新闻 @小视频 等功能（预留）</span>
+        <span class="tips">支持 @曼波 @音乐一下 @电影 @天气 @新闻 @随机头像 等功能</span>
       </div>
+      <div id="funcPanel" class="func-panel" role="listbox" aria-label="指令选择"></div>
       <div id="emojiPanel" class="emoji-panel" role="listbox" aria-label="表情选择面板"></div>
       <div class="input-row">
         <input id="msgInput" type="text" placeholder="输入消息，按 Enter 发送" maxlength="500" />

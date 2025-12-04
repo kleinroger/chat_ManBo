@@ -135,3 +135,28 @@ python -m http.server 8887
 - 代码入口与静态目录在 <mcfile name="app.py" path="d:\software\Trae\design\manbo_chat\app.py"></mcfile> 中的 `make_app` 设置，模板与静态资源分别位于 `templates/` 与 `static/`
 
 如需我将 config.json 更新为你的最终公网地址或输出一份部署示例（ngrok/caddy/nginx 配置），告诉我具体域名与端口，我会补充示例配置与操作步骤。
+
+## 更新说明（当前实现）
+- 新增指令：`@随机头像`，后端插件 `plugins/avatar.py`，调用 `https://v2.xxapi.cn/api/head` 返回头像卡片；前端在 `static/js/chat.js` 渲染圆形头像卡片
+- 优化交互：在聊天室工具栏新增「@ 功能」滚动选择面板，点击自动将指令插入输入框，便于继续补充参数
+- 指令集现为：`@曼波`、`@音乐一下`、`@电影`、`@天气`、`@新闻`、`@随机头像`（`@小视频`已移除）
+- 端口支持统一或分离：通过 `PORT` 与 `WS_PORT` 环境变量；示例使用统一端口 `8081`
+
+## 快速启动（示例）
+```
+cd d:\software\Trae\chat_ManBo\manbo_chat
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install tornado requests
+$env:PORT=8081; $env:WS_PORT=8081; python app.py
+# 浏览器打开 http://localhost:8081/ （登录密码 123456）
+```
+
+## 内网穿透映射建议（统一端口 8081）
+- 页面与静态资源：`http://<你的外网域名>/` → `http://localhost:8081/`
+- WebSocket：`ws://<你的外网域名>/ws` → `ws://localhost:8081/ws`
+- 若外网为 HTTPS：使用 `https://<域名>/` 与 `wss://<域名>/ws`，反向代理需透传 `Upgrade: websocket` 与 `Connection: Upgrade`
+
+## 安全提示
+- `config.local.json` 中的密钥仅用于本地覆盖，不要提交到仓库；生产环境优先使用环境变量注入
+- 避免在日志与前端代码中暴露密钥或私有地址

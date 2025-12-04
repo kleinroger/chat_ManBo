@@ -1,8 +1,6 @@
 {
   "servers": [
-    "ws://localhost:8892/ws",
-    "ws://1run6ce7oa69.ngrok.xiaomiqiu123.top/ws",
-    "wss://1run6ce7oa69.ngrok.xiaomiqiu123.top/ws",
-    "http://1run6ce7oa69.ngrok.xiaomiqiu123.top"
+    "ws://localhost:8081/ws",
+    "ws://245pbr7jtjxy.ngrok.xiaomiqiu123.top/ws"
   ]
 }
